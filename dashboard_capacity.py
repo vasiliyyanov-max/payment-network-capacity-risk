@@ -40,6 +40,8 @@ SCN = {'ru': {'head': 'Сценарий решений: заданный стр�
 
 T = {
     "ru": {
+        "infeasible": 'Для этой модели нет допустимых порогов: доля часов в режиме тревоги выше лимита 3%. Полезность и экономика не рассчитываются.', "infeasible_kpi": 'Показатели не рассчитываются: для этой модели нет допустимых порогов.', "no_thr": 'нет допустимых порогов', "col_share": 'Часов в тревоге',
+        "model_sel": 'Модель для просмотра', "model_note": 'Переключение меняет обзор, канал, экономику и сценарий. Отметка «выбрана» в таблице — модель, выбранная по правилу.',
         "ops": 'Оперативный режим: последние часы сценария', "ops_now": 'на', "heat_leg": 'Нормально — тёмный · Review — жёлтый · Restrict — красный · Breach (перегрузка) — чёрный · × — начало события', "params": 'Параметры расчёта', "open_note": 'Открытых эпизодов (исход ещё не наступил): {n}. В затраты не включены.',
         "psi_range": 'Диапазон PSI по всем признакам', "feat_title": 'Что означают признаки', "feat_name": 'Признак', "feat_group": 'Группа', "feat_what": 'Что измеряет', "feat_note": '**PSI** сравнивает распределение признака на обучающем и тестовом периодах. Почти нулевые значения означают, что в симуляции нет структурных сдвигов. Признаки очереди (backlog) почти всегда равны нулю, поэтому их бины квантилей вырождены, и PSI для них формально нулевой. Это ограничение метода, а не признак стабильности.',
         "title": "Payment Network Capacity Risk & Early Warning",
@@ -132,6 +134,8 @@ T = {
 """,
     },
     "en": {
+        "infeasible": 'No admissible thresholds exist for this model: the share of hours in alert mode exceeds the 3% limit. Utility and economic metrics are not reported.', "infeasible_kpi": 'Metrics are not reported: this model has no admissible thresholds.', "no_thr": 'no admissible thresholds', "col_share": 'Alert hours',
+        "model_sel": 'Model to view', "model_note": "Switching changes the overview, channel, economics and scenario. The 'selected' mark shows the model chosen by the rule.",
         "ops": 'Operational mode: last hours of the scenario', "ops_now": 'at', "heat_leg": 'Normal — dark · Review — yellow · Restrict — red · Breach (overload) — black · × — event onset', "params": 'Calculation parameters', "open_note": 'Open episodes (outcome not yet known): {n}. Not included in costs.',
         "psi_range": 'PSI range across all features', "feat_title": 'What the features mean', "feat_name": 'Feature', "feat_group": 'Group', "feat_what": 'What it measures', "feat_note": "**PSI** compares a feature's distribution in training and test periods. Near-zero values mean the simulation has no structural shifts. Backlog features are almost always zero, so their quantile bins degenerate and PSI is formally zero. That is a limitation of the method, not evidence of stability.",
         "title": "Payment Network Capacity Risk & Early Warning",
@@ -224,6 +228,8 @@ T = {
 """,
     },
     "uk": {
+        "infeasible": 'Для цієї моделі немає допустимих порогів: частка годин у режимі тривоги перевищує ліміт 3%. Корисність та економіка не розраховуються.', "infeasible_kpi": 'Показники не розраховуються: для цієї моделі немає допустимих порогів.', "no_thr": 'немає допустимих порогів', "col_share": 'Годин у тривозі',
+        "model_sel": 'Модель для перегляду', "model_note": 'Перемикання змінює огляд, канал, економіку і сценарій. Позначка «обрано» — модель, обрана за правилом.',
         "ops": 'Оперативний режим: останні години сценарію', "ops_now": 'на', "heat_leg": 'Нормально — темний · Review — жовтий · Restrict — червоний · Breach (перевантаження) — чорний · × — початок події', "params": 'Параметри розрахунку', "open_note": 'Відкритих епізодів (результат ще не настав): {n}. До витрат не включено.',
         "psi_range": 'Діапазон PSI за всіма ознаками', "feat_title": 'Що означають ознаки', "feat_name": 'Ознака', "feat_group": 'Група', "feat_what": 'Що вимірює', "feat_note": '**PSI** порівнює розподіл ознаки на навчальному та тестовому періодах. Майже нульові значення означають, що в симуляції немає структурних зсувів. Ознаки черги (backlog) майже завжди нульові, тому їхні квантильні бини вироджені, і PSI для них формально нульовий. Це обмеження методу, а не ознака стабільності.',
         "title": "Payment Network Capacity Risk & Early Warning",
@@ -371,6 +377,15 @@ def load_results(dir_str: str):
     }
 
 
+MODEL_NAMES = {
+    "en": {"no_skill_constant": "No-skill constant", "rule_backlog_level": "Queue rule",
+           "logistic_regression": "Logistic regression", "gradient_boosting": "Gradient boosting (HistGB)"},
+    "ru": {"no_skill_constant": "Без навыка (константа)", "rule_backlog_level": "Правило по очереди",
+           "logistic_regression": "Логистическая регрессия", "gradient_boosting": "Градиентный бустинг (HistGB)"},
+    "uk": {"no_skill_constant": "Без навички (константа)", "rule_backlog_level": "Правило за чергою",
+           "logistic_regression": "Логістична регресія", "gradient_boosting": "Градієнтний бустинг (HistGB)"},
+}
+
 FEAT_TXT = {
     "ru": {"base": {"demand": "спрос", "capacity": "ёмкость", "backlog": "очередь", "util": "загрузка (спрос / ёмкость)"},
            "suf": {"now": "текущее значение", "lag1": "значение час назад", "d3h": "изменение за последние 3 часа",
@@ -468,15 +483,22 @@ cfg0: Config = data["cfg"]
 tp = data["tp"]
 cat = data["cat"]
 chosen = frozen["chosen_model"]
-score_col = f"score_{chosen}"
+cmp_all = data["cmp"].set_index("model")
+selectable = [m for m in ("logistic_regression", "gradient_boosting", "rule_backlog_level")
+              if m in cmp_all.index and pd.notna(cmp_all.loc[m, "t_review"])]
 test_block = tuple(frozen["policy_block"])
 onsets = cat["onset_hour"].to_numpy()
 
 st.sidebar.markdown("---")
 st.sidebar.subheader(TX["thr_box"])
 use_frozen = st.sidebar.toggle(TX["use_frozen"], value=True)
-fz_rev = float(frozen["thresholds"]["review"])
-fz_res = float(frozen["thresholds"]["restrict"])
+sel_model = st.sidebar.selectbox(
+    TX["model_sel"], selectable, index=selectable.index(chosen),
+    format_func=lambda m: MODEL_NAMES[L][m])
+score_col = f"score_{sel_model}"
+fz_rev = float(cmp_all.loc[sel_model, "t_review"])
+fz_res = float(cmp_all.loc[sel_model, "t_restrict"])
+sel_feasible = bool(cmp_all.loc[sel_model, "feasible_under_alert_limit"])
 if use_frozen:
     t_rev, t_res = fz_rev, fz_res
 else:
@@ -514,11 +536,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.info(TX["synthetic"])
+if not sel_feasible:
+    st.warning(TX["infeasible"])
 
 # оперативный поток: сценарий (последние часы — «сейчас»); без сценария — тестовый блок
 if data["scen_hourly"] is not None and data["scen_meta"] is not None and data["scen_events"] is not None:
     ops = data["scen_hourly"].rename(columns={"demand": "demand_obs", "capacity": "capacity_obs"})
-    ops = ops.assign(score=ops["score"])
+    ops = ops.assign(score=ops[score_col])
     ops["live_state"] = np.where(ops["backlog_truth"] > cfg.backlog_threshold, "Breach",
                                  np.where(ops["score"] >= t_res, "Restrict",
                                           np.where(ops["score"] >= t_rev, "Review", "Normal")))
@@ -541,24 +565,27 @@ tabs = st.tabs(TX["tabs"])
 # 1. Обзор
 # ---------------------------------------------------------------------------
 with tabs[0]:
-    c1, c2, c3, c4, c5, c6 = st.columns(6)
-    with c1:
-        kpi(TX["kpi_recall"], f'{m["recall"]:.0%}' if m["n_events"] else "—",
-            f'{m["n_caught"]} / {m["n_events"]} {TX["events_unit"]}')
-    with c2:
-        kpi(TX["kpi_lead"], f'{m["median_lead_h"]:.1f} {TX["hours"]}' if m["n_caught"] else "—", TX["kpi_lead_s"])
-    with c3:
-        kpi(TX["kpi_prec"], f'{m["precision"]:.0%}' if m["n_episodes"] else "—", TX["kpi_prec_s"])
-    with c4:
-        kpi(TX["kpi_alerts"], f'{m["alerts_per_day"]:.2f}', TX["kpi_alerts_s"])
-    with c5:
-        kpi(TX["kpi_net"], fmt_money(econ["net_benefit"]), TX["kpi_net_s"])
-    with c6:
-        roi = econ["roi"]
-        kpi(TX["kpi_roi"], f"{roi:.1f}×" if roi == roi else "—", TX["kpi_roi_s"])
-    if (t_rev, t_res) != (fz_rev, fz_res):
-        st.caption(f'{TX["frozen_delta"]}: recall {fm["recall"]:.0%}, '
-                   f'net {fmt_money(frozen["economics_test"]["net_benefit"])}.')
+    if not sel_feasible:
+        st.info(TX["infeasible_kpi"])
+    else:
+        c1, c2, c3, c4, c5, c6 = st.columns(6)
+        with c1:
+            kpi(TX["kpi_recall"], f'{m["recall"]:.0%}' if m["n_events"] else "—",
+                f'{m["n_caught"]} / {m["n_events"]} {TX["events_unit"]}')
+        with c2:
+            kpi(TX["kpi_lead"], f'{m["median_lead_h"]:.1f} {TX["hours"]}' if m["n_caught"] else "—", TX["kpi_lead_s"])
+        with c3:
+            kpi(TX["kpi_prec"], f'{m["precision"]:.0%}' if m["n_episodes"] else "—", TX["kpi_prec_s"])
+        with c4:
+            kpi(TX["kpi_alerts"], f'{m["alerts_per_day"]:.2f}', TX["kpi_alerts_s"])
+        with c5:
+            kpi(TX["kpi_net"], fmt_money(econ["net_benefit"]), TX["kpi_net_s"])
+        with c6:
+            roi = econ["roi"]
+            kpi(TX["kpi_roi"], f"{roi:.1f}×" if roi == roi else "—", TX["kpi_roi_s"])
+        if sel_model == chosen and (t_rev, t_res) != (fz_rev, fz_res):
+            st.caption(f'{TX["frozen_delta"]}: recall {fm["recall"]:.0%}, '
+                       f'net {fmt_money(frozen["economics_test"]["net_benefit"])}.')
 
     st.markdown(f'#### {TX["status_title"]}')
     if ops_mode:
@@ -652,9 +679,12 @@ with tabs[1]:
 with tabs[2]:
     st.markdown(f'#### {TX["models_title"]}')
     st.info(TX["models_note"])
+    st.caption(TX["model_note"])
     cmp_df = data["cmp"].copy()
+    cmp_df["name"] = cmp_df["model"].map(MODEL_NAMES[L]).fillna(cmp_df["model"])
+    infeas = ~cmp_df["feasible_under_alert_limit"].astype(bool)
     show = pd.DataFrame({
-        TX["col_model"]: cmp_df["model"].str.replace("_", " "),
+        TX["col_model"]: cmp_df["name"],
         TX["col_auc"]: cmp_df["roc_auc_test"].round(3),
         TX["col_pr"]: cmp_df["pr_auc_test"].round(3),
         TX["col_bss"]: cmp_df["brier_skill_test"].round(3),
@@ -664,10 +694,23 @@ with tabs[2]:
         TX["col_net"]: cmp_df["net_benefit_test"].map(lambda v: fmt_money(v) if pd.notna(v) else "—"),
         TX["selected"]: cmp_df["selected"].map({True: "✔", False: ""}),
     })
+    show.insert(len(show.columns) - 1, TX["col_share"],
+                cmp_df["alert_hour_share_test"].map(lambda v: f"{v:.1%}" if pd.notna(v) else "—"))
+    def _pct(v):
+        return f"{v:.0%}" if pd.notna(v) else "—"
+    fmt_cols = {
+        TX["col_recall"]: cmp_df["recall_test"].map(_pct),
+        TX["col_lead"]: cmp_df["median_lead_h_test"].map(lambda v: f"{v:.1f}" if pd.notna(v) else "—"),
+        TX["col_prec"]: cmp_df["precision_test"].map(_pct),
+        TX["col_net"]: cmp_df["net_benefit_test"].map(lambda v: fmt_money(v) if pd.notna(v) else "—"),
+    }
+    for col, ser in fmt_cols.items():
+        show[col] = ser.astype(str).to_numpy()
+        show.loc[infeas.to_numpy(), col] = TX["no_thr"]
     st.dataframe(show, hide_index=True, width="stretch")
 
     b1, b2 = st.columns(2)
-    names = cmp_df["model"].str.replace("_", " ")
+    names = cmp_df["name"]
     with b1:
         f1 = go.Figure(go.Bar(x=names, y=cmp_df["pr_auc_test"], marker_color=NAVY))
         f1.update_layout(template="plotly_white", title=TX["bar_pr"], height=300, margin=dict(l=10, r=10, t=40, b=10))
@@ -768,6 +811,7 @@ with tabs[4]:
         st.warning(S["missing"])
     else:
         sh = data["scen_hourly"].copy()
+        sh["score"] = sh[score_col]
         sh["live_state"] = np.where(sh["backlog_truth"] > cfg.backlog_threshold, "Breach",
                                     np.where(sh["score"] >= t_res, "Restrict",
                                              np.where(sh["score"] >= t_rev, "Review", "Normal")))

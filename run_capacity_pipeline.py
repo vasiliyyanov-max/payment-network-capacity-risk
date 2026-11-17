@@ -349,11 +349,14 @@ def run_scenario(cfg: Config, models: dict, platt: dict, chosen: str, t_rev: flo
 
     df, feats = build_features(raw)
     X = df[feats].to_numpy(dtype=float)
-    if chosen == "rule_backlog_level":
-        raw_p = np.clip(np.nan_to_num(df["backlog_now"].to_numpy() / cfg.backlog_threshold), 0, 1)
-    else:
-        raw_p = models[chosen].predict_proba(X)[:, 1]
-    df["score"] = apply_platt(platt[chosen], raw_p)
+    # прогноз всех моделей: дашборд позволяет переключать модель
+    for name in platt:
+        if name == "rule_backlog_level":
+            raw_p = np.clip(np.nan_to_num(df["backlog_now"].to_numpy() / cfg.backlog_threshold), 0, 1)
+        else:
+            raw_p = models[name].predict_proba(X)[:, 1]
+        df[f"score_{name}"] = apply_platt(platt[name], raw_p)
+    df["score"] = df[f"score_{chosen}"]
     df["eval_ok"] = df["backlog_truth"].to_numpy() <= cfg.backlog_threshold
     block = (start + SCEN_WARM_H, start + n)
     events = build_events(raw, cfg)
@@ -376,8 +379,9 @@ def run_scenario(cfg: Config, models: dict, platt: dict, chosen: str, t_rev: flo
     evt["in_scenario"] = (evt["onset_hour"] >= block[0] + cfg.horizon_hours) & (evt["onset_hour"] < block[1])
     evt.to_csv(out_dir / "scenario_events.csv", index=False)
 
+    score_cols = [f"score_{n}" for n in platt]
     hourly = df.loc[in_win, ["timestamp_utc", "hour", "component_id", "demand", "capacity",
-                             "backlog_truth", "score", "eval_ok"]].copy()
+                             "backlog_truth", "score", "eval_ok"] + score_cols].copy()
     hourly["state"] = np.where(~hourly["eval_ok"].astype(bool), "Breach",
                                np.where(hourly["score"] >= t_res, "Restrict",
                                         np.where(hourly["score"] >= t_rev, "Review", "Normal")))
@@ -452,16 +456,19 @@ def run(out_dir: Path, cfg: Config = Config()) -> dict:
         m_test, ev_t, ep_t = core.policy_outcome(
             hour[te_eval], s[te_eval], onsets, cfg, best["t_review"], best["t_restrict"], tb_test)
         st = stat_metrics(y[te_lab].astype(int), s[te_lab])
+        # показатели, зависящие от порогов, считаются только для допустимых порогов
+        keep = (lambda v: v) if feasible else (lambda v: float("nan"))
         comparison.append({
             "model": name,
             "roc_auc_test": st["roc_auc"], "pr_auc_test": st["pr_auc"],
             "brier_test": st["brier"], "brier_skill_test": st["brier_skill"],
-            "net_on_threshold_block": thr_net,
+            "net_on_threshold_block": keep(thr_net),
             "t_review": float(best["t_review"]), "t_restrict": float(best["t_restrict"]),
             "feasible_under_alert_limit": feasible,
-            "recall_test": m_test["recall"], "median_lead_h_test": m_test["median_lead_h"],
-            "precision_test": m_test["precision"], "alerts_per_day_test": m_test["alerts_per_day"],
-            "net_benefit_test": m_test["net_benefit"], "roi_test": m_test["roi"],
+            "alert_hour_share_test": m_test["alert_hour_share"],
+            "recall_test": keep(m_test["recall"]), "median_lead_h_test": keep(m_test["median_lead_h"]),
+            "precision_test": keep(m_test["precision"]), "alerts_per_day_test": m_test["alerts_per_day"],
+            "net_benefit_test": keep(m_test["net_benefit"]), "roi_test": keep(m_test["roi"]),
         })
         frozen_by_model[name] = (best, m_test, ev_t, ep_t, st)
         grids[name] = grid
