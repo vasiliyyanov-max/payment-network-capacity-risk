@@ -1,6 +1,0 @@
-step,label,value,kind
-baseline,Потери без системы,2600000.0,total
-avoided,Предотвращённые потери,-1600000.0,relative
-review,Проверки (Review),238550.0,relative
-restrict,Ограничения (Restrict),138500.0,relative
-total,Итог с системой,1377050.0,total
