@@ -1,122 +1,174 @@
 # Payment Network Capacity Risk & Early Warning
 
-Портфолио-прототип системы поддержки решений для раннего выявления перегрузки каналов P2P-платёжной сети и оценки экономики реакции на предупреждения.
+A portfolio prototype of a decision-support system for early detection of channel overload in a P2P payment network, and for evaluating the economics of responding to warnings.
 
-> **Важно.** Все данные синтетические. Проект демонстрирует методологию и аналитический подход. Результаты не являются доказательством эффективности на реальных данных и не воспроизводят внутренние алгоритмы банков или платёжных провайдеров.
+**Live demo:** https://payment-network-capacity-risk-emrarknxd6tnubgccdjpwd.streamlit.app
+The dashboard switches between English, Українська and Русский (see the selector in the sidebar).
 
-**Демо:** https://payment-network-capacity-risk-emrarknxd6tnubgccdjpwd.streamlit.app
+> **Important.** All data is synthetic. The project demonstrates a methodology and an analytical approach. The results are not evidence of effectiveness on real data and do not reproduce the internal algorithms of banks or payment providers.
 
 ---
 
-## Идея
+## Idea
 
-Платёжную сеть можно представить как систему каналов: если один канал забивается, пропускная способность всей сети падает. Задача проекта — по наблюдаемой динамике нагрузки заранее заметить перегрузку канала и решить, стоит ли реагировать. Реакция стоит денег (проверка, переключение потока), пропущенная перегрузка тоже стоит денег, поэтому порог срабатывания выбирается по экономике, а не по метрике классификации.
+A payment network can be viewed as a system of channels: when one channel gets clogged, the capacity of the whole network drops. The goal of the project is to notice an overload of a channel early, from observed load dynamics, and to decide whether a response is worth it.
 
-Проект рассматривается на двух уровнях:
+A response costs money (checking a channel, moving part of the flow), and a missed overload costs money too. Therefore the alert threshold is chosen by economics, not by a classification metric.
 
-1. **Account Availability Risk Score** — оценка риска ограничения доступности отдельного счёта по динамике операций. *Концепция; в текущей версии не реализован.*
-2. **Payment Network Capacity Risk & Early Warning** — оценка операционной ёмкости сети и раннее предупреждение о перегрузке каналов. *Реализован.*
+The project is considered at two levels:
 
-Связь между уровнями (ограничение счёта → перегрузка сети) — гипотеза, которую проект пока не проверяет.
+1. **Account Availability Risk Score**: a risk score for restriction of an individual account's availability, based on transaction dynamics. *Concept only: not implemented in the current version.*
+2. **Payment Network Capacity Risk & Early Warning**: assessment of network operational capacity and early warning of channel overloads. *Implemented.*
 
-## Что реализовано
+The link between the levels (account restriction → network overload) is a hypothesis that the project does not yet test.
 
-- **Synthetic Data Engineering.** Почасовая симуляция шести каналов за три года: спрос, ёмкость, очередь. Стресс-сценарии (постепенное нарастание, каскад, внезапный всплеск, кратковременный всплеск, предвестник без перегрузки) и телеметрия с дефектами: пропуски, задержки, искажения (0.25% строк).
-- **Feature Engineering.** Лаги, скользящие окна (6, 12, 24 часа), тренды, тренды очереди, загрузка канала, время до очистки очереди, флаг качества данных. Признаки используют только прошлое и текущее наблюдение.
-- **Predictive Modeling.** Четыре подхода: эталон без навыка (константа), эвристика по уровню очереди, логистическая регрессия, градиентный бустинг. Цель — начнётся ли перегрузка в ближайшие 6 часов. Вероятности калибруются методом Platt на отдельном блоке.
-- **Temporal Validation.** Обучение, валидация, калибровка, подбор порогов и тест идут по времени, без случайного перемешивания. Между блоками стоит зазор (embargo 12 часов), метки обрезаются на границах блоков (purge). Часы, когда перегрузка уже идёт, из оценки исключены.
-- **Risk Scoring и пороги.** Два уровня реакции: **Review** (проверка резервного канала и подготовка перевода части потока) и **Restrict** (переключение 30% потока на резервный процессор). Пороги подбираются на отдельном блоке по чистому эффекту при двух ограничениях: эпизодов в сутки и доля часов в режиме тревоги. Тестовый блок в подборе не участвует.
-- **Decision Economics.** Учитываются: ущерб от события без предупреждения, стоимость проверки, стоимость ограничения, почасовая стоимость мониторинга, доля ущерба, предотвращённая каждым уровнем. Для каждого уровня считается точка безубыточности по полезности эпизода.
-- **Scenario Analysis.** Заданный стресс в двух каналах. Три политики на одном сценарии: без системы, только Review, Review + Restrict. Состояния каналов возникают из обученной модели, а не задаются вручную.
-- **Interactive Dashboard.** Оперативное состояние каналов, тепловая карта, динамика канала, сравнение моделей, экономика с чувствительностью, сценарий решений, журнал решений, качество данных и дрейф признаков, методология. Интерфейс на английском, украинском и русском.
+---
 
-## Результаты
+## What is implemented
 
-Тестовый период: 162 дня, 26 событий. В скобках 95% интервалы (бутстрап по событиям и эпизодам). Интервалы широкие из-за малого числа событий.
+- **Synthetic data.** Hourly simulation of six channels over three years: demand, capacity, queue. Overload emerges from queue dynamics rather than being set directly. Four stress types (gradual build-up, cascade, flash surge, short surge without overload), plus a precursor without overload used in the scenario. Telemetry includes defects: missing values, delays and distortions in 0.25% of rows.
+- **Features.** Lags, rolling windows (6, 12, 24 hours), trends of demand, capacity and queue, channel utilisation, time to clear the queue, a data-quality flag. Features use only past and current observations.
+- **Models.** Four approaches: a no-skill constant, a queue-based heuristic, logistic regression, and gradient boosting (HistGradientBoosting). The target is whether an overload starts within the next 6 hours. Probabilities are calibrated with Platt scaling on a separate block.
+- **Temporal validation.** Training, model validation, calibration, threshold selection and testing follow time order, with no random shuffling. Blocks are separated by an embargo of 12 hours, and labels are purged at block boundaries (6 hours). Hours already in overload are excluded from evaluation.
+- **Thresholds and response levels.** Two levels:
+  - **Review**: check the backup channel and prepare to move part of the flow;
+  - **Restrict**: switch 30% of the flow to a backup processor.
 
-| Показатель | Значение |
+  Both are recommendations to an operator; there is no automatic rerouting. Thresholds are chosen on a separate block by net benefit under two limits: the number of alert episodes per day and the share of hours in alert mode. The test block is not used for selection.
+- **Decision economics.** The model accounts for the loss from an event without warning, the cost of a check, the cost of a restriction, the hourly monitoring cost, and the share of loss avoided by each level. For each level, the break-even episode precision is computed.
+- **Scenario analysis.** A designed stress in two channels. Three policies on the same scenario: no system, Review only, Review + Restrict. Channel states come from the trained model and thresholds, not from a hand-written table.
+- **Interactive dashboard.** Seven tabs: Overview, Channel, Models, Economics, Scenario, Data & drift, Methodology. The interface is available in English, Ukrainian and Russian. All figures are read from the pipeline output or recomputed by the same core as the pipeline.
+
+---
+
+## Results
+
+Test period: 162 days, 26 events. Values in brackets are 95% intervals (bootstrap over events and episodes). The intervals are wide because there are few events.
+
+| Metric | Value |
 |---|---|
-| Полнота (событий с предупреждением) | 92% (81–100%) |
-| Медианный запас времени до события | 4 ч (3–5) |
-| Полезность эпизодов тревоги | 22% (14–29%) |
-| Чистый эффект (условные единицы) | 1.22 млн (1.01–1.41 млн) |
-| ROI системы | 3.2× (2.6–4.0) |
-| ROC-AUC: логистическая регрессия / градиентный бустинг | 0.86 / 0.81 |
-| Brier skill (относительно константы) | 0.31 / 0.26 |
+| Recall (events with a warning) | 92% (81–100%) |
+| Median lead time before an event | 4 h (3–5) |
+| Alert episode precision | 22% (14–29%) |
+| Net benefit, conventional units | 1.22 M (1.01–1.41 M) |
+| System ROI | 3.2× (2.6–4.0) |
+| ROC-AUC: logistic regression / gradient boosting | 0.86 / 0.81 |
+| Brier skill vs. constant: logistic regression / gradient boosting | 0.31 / 0.26 |
 
-Модель для решений (градиентный бустинг) выбрана по чистому эффекту на блоке порогов, а не на тесте. На тесте логистическая регрессия показала лучшие значения по ROC-AUC и экономике. Это зафиксировано в дашборде и означает, что сложная модель здесь не доказала преимущества.
+**Model selection.** The decision model is gradient boosting. It was chosen by net benefit on the threshold block, under a rule fixed before the test set was examined. On the test set, logistic regression scored higher on ROC-AUC and on economics. The dashboard reports this openly. The conclusion: the more complex model did not demonstrate an advantage here.
 
-Калибровка слабая: в низком диапазоне вероятностей предсказанный риск не согласуется с наблюдаемой частотой, а в верхней децили модель занижает риск (3.5% против 4.7%). Вероятности следует читать как относительный ранг риска, а не как точные вероятности.
+**Calibration.** Weak. At low predicted probabilities, the predicted risk does not match the observed frequency, and in the top decile the model underestimates risk (3.5% predicted vs. 4.7% observed). The probabilities should be read as a relative risk ranking, not as exact probabilities.
 
-**Сценарий решений.** В заданном стрессе канал COMP-04 переходит в Restrict за 4 часа до перегрузки и защищает 75 тыс. из 100 тыс. ущерба. Политика Review + Restrict даёт чистый эффект 45.3 тыс. против 30.8 тыс. у политики только с Review. Канал COMP-06 даёт ложную тревогу Review, это тоже учитывается в экономике.
+**How to read these numbers.**
+- *Recall*: the share of events preceded by at least one signal within 6 hours before they started.
+- *Episode precision*: the share of alert episodes followed by an actual event within their time window or the following hours. An episode merges signals separated by pauses of up to 3 hours.
+- *Break-even precision*: the minimum precision at which a response level pays for itself. For Restrict it is about 11%, the observed value is 81%. For Review it is about 4.5%, the observed value is 12%. Review pays off, but only just, and it produces many false alarms.
+- *Intervals* are wide because the test set has 26 events. Any conclusion should be read with that caveat.
 
-## Сценарий решений
-В пайплайне задан стресс в двух каналах: COMP-06 — нарастание нагрузки без перегрузки, COMP-04 — нарастание, которое переходит в перегрузку. Расписание задаётся в `SCENARIO_SCHEDULE` (run_capacity_pipeline.py). Состояния Review и Restrict не задаются: они появляются из обученной модели и порогов. Дашборд показывает три политики на одном сценарии: без системы, только Review, Review + Restrict, и журнал решений с действиями и результатами.
+---
 
+## Decision scenario
 
-## Ограничения
+The pipeline applies a designed stress to two channels:
 
-- Данные синтетические. Выводы о промышленной эффективности делать нельзя.
-- Уровень отдельных счетов (Account Availability Risk Score) в этой версии не реализован.
-- Связь «ограничение счёта → перегрузка сети» не моделируется и не проверяется.
-- В тесте 26 событий: интервалы широкие, выводы предварительные.
-- Калибровка неточная при малых вероятностях.
-- Стоимости, ущерб и доли предотвращённого ущерба — допущения, а не измерения.
-- Синтетический мир стационарен, поэтому дрейф признаков (PSI) стабилен по построению. Признаки очереди почти всегда нулевые, и для них PSI формально нулевой.
+- **COMP-06**: a load build-up without overload. The system issues a Review, which is a false alarm. The cost of the check is included in the economics.
+- **COMP-04**: a build-up that turns into an overload. The Restrict level fires 4 hours before the overload and protects 75 k of the 100 k conventional units of loss.
 
-## Структура репозитория
+| Policy | Loss avoided | Costs | Net benefit |
+|---|---|---|---|
+| No system | 0 | 0 | 0 |
+| Review only | 55,000 | 24,200 | 30,800 |
+| Review + Restrict | 75,000 | 29,700 | 45,300 |
+
+The Restrict level adds 14.5 k over the Review-only policy. The channel states in the scenario come from the model, not from a hand-written table. An episode that has not finished by the end of the window is not included in costs, because its outcome is unknown.
+
+**Caveat.** Restrict fires near the upper end of the calibrated risk range (threshold 0.44, maximum about 0.45), so in the scenario it lasts only a few hours before the overload.
+
+---
+
+## Limitations
+
+- The data is synthetic. Conclusions about industrial effectiveness should not be drawn.
+- The account-level component (Account Availability Risk Score) is not implemented in this version.
+- The link "account restriction → network overload" is neither modelled nor tested.
+- The test set has 26 events: the intervals are wide and the conclusions are preliminary.
+- Calibration is imprecise at low probabilities.
+- Costs, losses and loss-avoidance shares are assumptions, not measurements.
+- The synthetic world is stationary, so feature drift (PSI) is stable by construction. Queue features are almost always zero, so their PSI is formally zero.
+
+---
+
+## Repository structure
 
 ```
-├── capacity_core.py           общее ядро: конфигурация, эпизоды, пороги, экономика, бутстрап
-├── run_capacity_pipeline.py   симуляция, признаки, модели, калибровка, пороги, сценарий, выгрузка
-├── dashboard_capacity.py      интерактивный дашборд (Streamlit)
-├── capacity_output/           результаты последнего прогона, которые читает дашборд
-├── requirements.txt           зависимости
+├── capacity_core.py           shared core: configuration, episodes, thresholds, economics, bootstrap
+├── run_capacity_pipeline.py   simulation, features, models, calibration, thresholds, scenario, export
+├── dashboard_capacity.py      interactive dashboard (Streamlit)
+├── capacity_output/           output of the latest run, read by the dashboard
+├── requirements.txt           dependencies
 ├── .gitignore
-└── README.md
+├── README.md                  this file (English)
+└── README_ru.md               Russian version
 ```
 
-Пайплайн и дашборд используют одно ядро `capacity_core.py`, поэтому цифры в отчётах и на экране совпадают.
+The pipeline and the dashboard share one core, `capacity_core.py`, so the numbers in reports and on screen are identical.
 
+---
 
-Синтетический проект. Денежные суммы — условные единицы.
+## Methodology
 
-## Состав
-- `capacity_core.py` — общее ядро: конфигурация, эпизоды тревог, оценка порогов, экономика, бутстрап. Пайплайн и дашборд используют одни и те же функции.
-- `run_capacity_pipeline.py` — симуляция, признаки, модели, калибровка, подбор порогов, оценка на тесте. Результаты — в `capacity_output/`.
-- `dashboard_capacity.py` — дашборд Streamlit на RU / EN / UK. Читает только файлы пайплайна; «что если» пересчитывается через ядро.
-- `capacity_output/` — результаты последнего прогона (seed 20251029).
+1. **Event**: an interval during which a channel's queue is above the threshold of 220 conventional units. Its start is the moment of the event.
+2. **Label**: whether an event starts within the next 6 hours.
+3. **Time split**: training 55%, model validation 10%, calibration 10%, threshold selection 10%, test the remainder (about 15%). A 12-hour gap separates the blocks.
+4. **Thresholds.** Review and Restrict are chosen on the threshold block by net benefit. Constraints: at most one alert episode per day, and at most 3% of hours in alert mode.
+5. **Alert episode**: a run of hours with risk above the Review threshold, merged across pauses of up to 3 hours. An episode is useful if an event starts within its time span or in the 6 hours after it.
+6. **Event avoided**: a signal was present in the 6 hours before the event started. Share of loss avoided: 55% for Review, 75% for Restrict.
+7. **Economic assumptions** (set in `Config`): loss from an event without warning 100,000; check 2,500 per episode; restriction 8,000 per episode; monitoring 150 per alert hour.
+8. **Uncertainty** is estimated by bootstrap (300 iterations), resampling events and episodes separately.
 
+The "Methodology" tab of the dashboard describes the same points.
 
-## Запуск
+---
 
-Требуется Python 3.11 или новее.
+## Running
+
+Python 3.11 or newer is required.
 
 ```bash
 pip install -r requirements.txt
-python run_capacity_pipeline.py     # около 30 секунд, создаёт capacity_output/
+python run_capacity_pipeline.py      # about 30 seconds, writes capacity_output/
 streamlit run dashboard_capacity.py
 ```
 
-Папка `capacity_output/` уже лежит в репозитории, поэтому дашборд можно запустить сразу, без пайплайна. Пайплайн нужен, если хотите пересчитать результаты или поменять параметры в `Config` (`capacity_core.py`) или расписание стрессов в `SCENARIO_SCHEDULE` (`run_capacity_pipeline.py`).
+The `capacity_output/` folder is already in the repository, so the dashboard runs without the pipeline. Run the pipeline if you want to recompute the results or change the `Config` parameters (`capacity_core.py`) or the stress schedule `SCENARIO_SCHEDULE` (`run_capacity_pipeline.py`).
 
-Параметры экономики (ущерб, стоимости, успешность реакции) можно менять в боковой панели дашборда без перезапуска пайплайна.
+Economic parameters (loss, costs, response effectiveness) can be changed in the dashboard sidebar without rerunning the pipeline.
 
-## Методология в двух словах
+**Reproducibility.** Generator seed 20251029. Results are deterministic for the same library versions. The run configuration is saved in `capacity_output/config.json`.
 
-1. Событие — интервал, когда очередь канала выше порога 220 условных единиц; его начало — момент события.
-2. Метка — начнётся ли событие в ближайшие 6 часов.
-3. Модель обучается на блоке обучения, калибруется на отдельном блоке, пороги подбираются на третьем блоке по чистому эффекту, тест используется только для оценки.
-4. Эпизод тревоги — серия часов с риском выше порога Review (объединяется при паузе до 3 часов). Эпизод полезен, если событие начинается в течение его времени или в последующие 6 часов.
-5. Событие считается предотвращённым, если в окне из 6 часов до его начала был сигнал. Доля предотвращённого ущерба зависит от уровня: 55% для Review, 75% для Restrict.
+---
 
-Подробно — во вкладке «Методология» дашборда.
+## What's next
 
+- Implementation of the account-level component (Account Availability Risk Score) and a test of its link to network overload.
+- Validation on real or semi-real data, if access becomes possible.
+- Better calibration at low probabilities.
+- A longer test and an assessment of threshold stability.
 
-## Автор
+---
 
-Василий Янов (Vasyl Yanov). Финансовый и data-аналитик, PhD в системном анализе и кибернетике.
+## License
 
-Связь: https://www.linkedin.com/in/vasyl-yanov-10981a31b/
+MIT. See the `LICENSE` file.
 
-Буду признателен за обратную связь по архитектуре, методологии и подходу к экономике решений. Замечания лучше оформлять как issue в репозитории.
+---
+
+## Author
+
+**Vasyl Yanov (Василий Янов)**: Lead Data Scientist / Risk Analytics Architect.
+
+Financial and data analyst, PhD in systems analysis and cybernetics. Specialisation: risk modelling, decision economics and early-warning systems for fintech and payment platforms.
+
+LinkedIn: https://www.linkedin.com/in/vasyl-yanov-10981a31b/
+
+I welcome feedback on the architecture, the methodology and the approach to decision economics. Please open an issue in the repository for comments.
