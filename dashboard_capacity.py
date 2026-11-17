@@ -538,9 +538,14 @@ st.markdown(
 st.info(TX["synthetic"])
 if not sel_feasible:
     st.warning(TX["infeasible"])
+if data["scen_hourly"] is not None and score_col not in data["scen_hourly"].columns:
+    st.warning("Результаты устарели: в папке capacity_output нет прогнозов этой модели. "
+               "Пересоздайте capacity_output пайплайном и загрузите его в репозиторий.")
 
 # оперативный поток: сценарий (последние часы — «сейчас»); без сценария — тестовый блок
-if data["scen_hourly"] is not None and data["scen_meta"] is not None and data["scen_events"] is not None:
+scen_ok = (data["scen_hourly"] is not None and data["scen_meta"] is not None
+           and data["scen_events"] is not None and score_col in data["scen_hourly"].columns)
+if scen_ok:
     ops = data["scen_hourly"].rename(columns={"demand": "demand_obs", "capacity": "capacity_obs"})
     ops = ops.assign(score=ops[score_col])
     ops["live_state"] = np.where(ops["backlog_truth"] > cfg.backlog_threshold, "Breach",
