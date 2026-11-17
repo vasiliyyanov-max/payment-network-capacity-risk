@@ -1,0 +1,45 @@
+{
+  "warm_hours": 96,
+  "window_hours": 336,
+  "block": [
+    26376,
+    26712
+  ],
+  "window_start_ts": "2026-01-04 00:00:00+00:00",
+  "schedule": {
+    "COMP-06": [
+      {
+        "offset_h": 120,
+        "type": "precursor_only"
+      },
+      {
+        "offset_h": 340,
+        "type": "precursor_only"
+      }
+    ],
+    "COMP-04": [
+      {
+        "offset_h": 300,
+        "type": "gradual"
+      }
+    ]
+  },
+  "max_score_by_component": {
+    "COMP-01": 0.04989052107210181,
+    "COMP-02": 0.047005299993419535,
+    "COMP-03": 0.10403748962929964,
+    "COMP-04": 0.45068531384543736,
+    "COMP-05": 0.15574219347315876,
+    "COMP-06": 0.4222141713489004
+  },
+  "state_counts": {
+    "Normal": 1944,
+    "Breach": 36,
+    "Review": 35,
+    "Restrict": 1
+  },
+  "thresholds": {
+    "review": 0.04586835237400503,
+    "restrict": 0.4405992070370395
+  }
+}

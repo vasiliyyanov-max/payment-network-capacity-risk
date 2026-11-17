@@ -1,0 +1,2 @@
+event_id,component_id,onset_hour,onset_ts,duration_hours,peak_backlog,scenario,in_scenario
+EV-0001,COMP-04,26676,2026-01-16 12:00:00+00:00,36,5464.113275755907,gradual,True
