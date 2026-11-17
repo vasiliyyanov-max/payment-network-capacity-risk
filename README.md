@@ -4,6 +4,7 @@ A portfolio prototype of a decision-support system for early detection of channe
 
 **Live demo:** https://payment-network-capacity-risk-emrarknxd6tnubgccdjpwd.streamlit.app
 The dashboard switches between English, Українська and Русский (see the selector in the sidebar).
+**Русская версия README:** [README_ru.md](README_ru.md)
 
 > **Important.** All data is synthetic. The project demonstrates a methodology and an analytical approach. The results are not evidence of effectiveness on real data and do not reproduce the internal algorithms of banks or payment providers.
 
@@ -37,7 +38,7 @@ The link between the levels (account restriction → network overload) is a hypo
   Both are recommendations to an operator; there is no automatic rerouting. Thresholds are chosen on a separate block by net benefit under two limits: the number of alert episodes per day and the share of hours in alert mode. The test block is not used for selection.
 - **Decision economics.** The model accounts for the loss from an event without warning, the cost of a check, the cost of a restriction, the hourly monitoring cost, and the share of loss avoided by each level. For each level, the break-even episode precision is computed.
 - **Scenario analysis.** A designed stress in two channels. Three policies on the same scenario: no system, Review only, Review + Restrict. Channel states come from the trained model and thresholds, not from a hand-written table.
-- **Interactive dashboard.** Seven tabs: Overview, Channel, Models, Economics, Scenario, Data & drift, Methodology. The interface is available in English, Ukrainian and Russian. All figures are read from the pipeline output or recomputed by the same core as the pipeline.
+- **Interactive dashboard.** Seven tabs: Overview, Channel, Models, Economics, Scenario, Data & drift, Methodology. The interface is available in English, Ukrainian and Russian. All figures are read from the pipeline output or recomputed by the same core as the pipeline. The model to view is selected in the sidebar. Switching changes the thresholds, overview, channel, economics and scenario, but not the model chosen for decisions. A model for which no admissible thresholds exist is marked in the table, and its utility and economic metrics are not reported.
 
 ---
 
@@ -55,7 +56,7 @@ Test period: 162 days, 26 events. Values in brackets are 95% intervals (bootstra
 | ROC-AUC: logistic regression / gradient boosting | 0.86 / 0.81 |
 | Brier skill vs. constant: logistic regression / gradient boosting | 0.31 / 0.26 |
 
-**Model selection.** The decision model is gradient boosting. It was chosen by net benefit on the threshold block, under a rule fixed before the test set was examined. On the test set, logistic regression scored higher on ROC-AUC and on economics. The dashboard reports this openly. The conclusion: the more complex model did not demonstrate an advantage here.
+**Model selection.** The decision model is gradient boosting. It was chosen by net benefit on the threshold block, under a rule fixed before the test set was examined. On the test set, logistic regression scored higher on ROC-AUC and on economics. The dashboard reports this openly. The conclusion: the more complex model did not demonstrate an advantage here. The Models tab includes an 'Alert hours' column: the share of hours in which a channel is in alert mode. For the queue rule it is 100%: the alert never switches off, so its 100% utility is formal and does not indicate warning quality.
 
 **Calibration.** Weak. At low predicted probabilities, the predicted risk does not match the observed frequency, and in the top decile the model underestimates risk (3.5% predicted vs. 4.7% observed). The probabilities should be read as a relative risk ranking, not as exact probabilities.
 
@@ -120,7 +121,7 @@ The pipeline and the dashboard share one core, `capacity_core.py`, so the number
 1. **Event**: an interval during which a channel's queue is above the threshold of 220 conventional units. Its start is the moment of the event.
 2. **Label**: whether an event starts within the next 6 hours.
 3. **Time split**: training 55%, model validation 10%, calibration 10%, threshold selection 10%, test the remainder (about 15%). A 12-hour gap separates the blocks.
-4. **Thresholds.** Review and Restrict are chosen on the threshold block by net benefit. Constraints: at most one alert episode per day, and at most 3% of hours in alert mode.
+4. **Thresholds.** Review and Restrict are chosen on the threshold block by net benefit. Constraints: at most one alert episode per day, and at most 3% of hours in alert mode. If no admissible thresholds exist under these limits, the model gets no utility or economic metrics.
 5. **Alert episode**: a run of hours with risk above the Review threshold, merged across pauses of up to 3 hours. An episode is useful if an event starts within its time span or in the 6 hours after it.
 6. **Event avoided**: a signal was present in the 6 hours before the event started. Share of loss avoided: 55% for Review, 75% for Restrict.
 7. **Economic assumptions** (set in `Config`): loss from an event without warning 100,000; check 2,500 per episode; restriction 8,000 per episode; monitoring 150 per alert hour.
