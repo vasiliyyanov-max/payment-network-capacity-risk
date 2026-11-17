@@ -1,0 +1,4 @@
+policy,events,caught,recall,episodes,open_episodes,precision,baseline_loss,avoided_loss,review_cost,restrict_cost,alert_cost,net_benefit,roi
+no_system,1,0,0.0,0,0,,100000.0,0.0,0.0,0.0,0.0,0.0,
+review_only,1,1,1.0,8,1,0.125,100000.0,55000.00000000001,24200.0,0.0,24200.0,30800.000000000007,1.272727272727273
+two_tier,1,1,1.0,8,1,0.125,100000.0,75000.0,20050.0,9650.0,29700.0,45300.0,1.5252525252525253

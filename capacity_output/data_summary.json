@@ -1,0 +1,53 @@
+{
+  "hours": 26280,
+  "components": 6,
+  "start_ts": "2023-01-01 00:00:00",
+  "events_total": 172,
+  "events_by_scenario": {
+    "gradual": 76,
+    "joint": 36,
+    "flash": 35,
+    "transient": 25
+  },
+  "stress_onsets_by_type": {
+    "transient": 77,
+    "gradual": 76,
+    "joint": 36,
+    "flash": 35
+  },
+  "dq_defects": {
+    "delayed": 143,
+    "missing": 129,
+    "distorted": 122
+  },
+  "dq_defect_rows": 394,
+  "blocks": {
+    "train": [
+      0,
+      14454
+    ],
+    "validation_model": [
+      14466,
+      17094
+    ],
+    "validation_calibration": [
+      17106,
+      19734
+    ],
+    "validation_threshold": [
+      19746,
+      22374
+    ],
+    "test": [
+      22386,
+      26280
+    ]
+  },
+  "prevalence_by_block": {
+    "train": 0.0074996359400029125,
+    "validation_model": 0.006351726875744343,
+    "validation_calibration": 0.0051390169982869945,
+    "validation_threshold": 0.0055419937982450354,
+    "test": 0.007054673721340388
+  }
+}

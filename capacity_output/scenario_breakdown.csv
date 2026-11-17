@@ -1,0 +1,5 @@
+scenario,events,caught,recall,median_lead_h
+flash,3,1,0.3333333333333333,6.0
+gradual,11,11,1.0,6.0
+joint,9,9,1.0,3.0
+transient,3,3,1.0,3.0
