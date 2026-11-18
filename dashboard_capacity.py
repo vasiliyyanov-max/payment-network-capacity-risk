@@ -42,7 +42,7 @@ T = {
     "ru": {
         "infeasible": 'Для этой модели нет допустимых порогов: доля часов в режиме тревоги выше лимита 3%. Полезность и экономика не рассчитываются.', "infeasible_kpi": 'Показатели не рассчитываются: для этой модели нет допустимых порогов.', "no_thr": 'нет допустимых порогов', "col_share": 'Часов в тревоге',
         "model_sel": 'Модель для просмотра', "model_note": 'Переключение меняет обзор, канал, экономику и сценарий. Отметка «выбрана» в таблице — модель, выбранная по правилу.',
-        "ops": 'Оперативный режим: последние часы сценария', "ops_now": 'на', "heat_leg": 'Нормально — тёмный · Review — жёлтый · Restrict — красный · Breach (перегрузка) — чёрный · × — начало события', "params": 'Параметры расчёта', "open_note": 'Открытых эпизодов (исход ещё не наступил): {n}. В затраты не включены.',
+        "ops": 'Оперативный режим: последние часы сценария', "ops_now": 'на', "heat_leg": 'Нормально — светло-серый · Review — жёлтый · Restrict — красный · Breach (перегрузка) — тёмно-серый · × — начало события', "params": 'Параметры расчёта', "open_note": 'Открытых эпизодов (исход ещё не наступил): {n}. В затраты не включены.',
         "psi_range": 'Диапазон PSI по всем признакам', "feat_title": 'Что означают признаки', "feat_name": 'Признак', "feat_group": 'Группа', "feat_what": 'Что измеряет', "feat_note": '**PSI** сравнивает распределение признака на обучающем и тестовом периодах. Почти нулевые значения означают, что в симуляции нет структурных сдвигов. Признаки очереди (backlog) почти всегда равны нулю, поэтому их бины квантилей вырождены, и PSI для них формально нулевой. Это ограничение метода, а не признак стабильности.',
         "title": "Payment Network Capacity Risk & Early Warning",
         "subtitle": "Раннее предупреждение о перегрузке каналов P2P-платёжной сети",
@@ -136,7 +136,7 @@ T = {
     "en": {
         "infeasible": 'No admissible thresholds exist for this model: the share of hours in alert mode exceeds the 3% limit. Utility and economic metrics are not reported.', "infeasible_kpi": 'Metrics are not reported: this model has no admissible thresholds.', "no_thr": 'no admissible thresholds', "col_share": 'Alert hours',
         "model_sel": 'Model to view', "model_note": "Switching changes the overview, channel, economics and scenario. The 'selected' mark shows the model chosen by the rule.",
-        "ops": 'Operational mode: last hours of the scenario', "ops_now": 'at', "heat_leg": 'Normal — dark · Review — yellow · Restrict — red · Breach (overload) — black · × — event onset', "params": 'Calculation parameters', "open_note": 'Open episodes (outcome not yet known): {n}. Not included in costs.',
+        "ops": 'Operational mode: last hours of the scenario', "ops_now": 'at', "heat_leg": 'Normal — light grey · Review — yellow · Restrict — red · Breach (overload) — dark grey · × — event onset', "params": 'Calculation parameters', "open_note": 'Open episodes (outcome not yet known): {n}. Not included in costs.',
         "psi_range": 'PSI range across all features', "feat_title": 'What the features mean', "feat_name": 'Feature', "feat_group": 'Group', "feat_what": 'What it measures', "feat_note": "**PSI** compares a feature's distribution in training and test periods. Near-zero values mean the simulation has no structural shifts. Backlog features are almost always zero, so their quantile bins degenerate and PSI is formally zero. That is a limitation of the method, not evidence of stability.",
         "title": "Payment Network Capacity Risk & Early Warning",
         "subtitle": "Early warning of channel overload in a P2P payment network",
@@ -230,7 +230,7 @@ T = {
     "uk": {
         "infeasible": 'Для цієї моделі немає допустимих порогів: частка годин у режимі тривоги перевищує ліміт 3%. Корисність та економіка не розраховуються.', "infeasible_kpi": 'Показники не розраховуються: для цієї моделі немає допустимих порогів.', "no_thr": 'немає допустимих порогів', "col_share": 'Годин у тривозі',
         "model_sel": 'Модель для перегляду', "model_note": 'Перемикання змінює огляд, канал, економіку і сценарій. Позначка «обрано» — модель, обрана за правилом.',
-        "ops": 'Оперативний режим: останні години сценарію', "ops_now": 'на', "heat_leg": 'Нормально — темний · Review — жовтий · Restrict — червоний · Breach (перевантаження) — чорний · × — початок події', "params": 'Параметри розрахунку', "open_note": 'Відкритих епізодів (результат ще не настав): {n}. До витрат не включено.',
+        "ops": 'Оперативний режим: останні години сценарію', "ops_now": 'на', "heat_leg": 'Нормально — світло-сірий · Review — жовтий · Restrict — червоний · Breach (перевантаження) — темно-сірий · × — початок події', "params": 'Параметри розрахунку', "open_note": 'Відкритих епізодів (результат ще не настав): {n}. До витрат не включено.',
         "psi_range": 'Діапазон PSI за всіма ознаками', "feat_title": 'Що означають ознаки', "feat_name": 'Ознака', "feat_group": 'Група', "feat_what": 'Що вимірює', "feat_note": '**PSI** порівнює розподіл ознаки на навчальному та тестовому періодах. Майже нульові значення означають, що в симуляції немає структурних зсувів. Ознаки черги (backlog) майже завжди нульові, тому їхні квантильні бини вироджені, і PSI для них формально нульовий. Це обмеження методу, а не ознака стабільності.',
         "title": "Payment Network Capacity Risk & Early Warning",
         "subtitle": "Раннє попередження про перевантаження каналів P2P-платіжної мережі",
@@ -616,8 +616,8 @@ with tabs[0]:
     spiv = recent.pivot_table(index="component_id", columns="timestamp_utc", values="score")
     fig_h = go.Figure(go.Heatmap(
         z=piv.to_numpy(), x=piv.columns, y=piv.index, zmin=0, zmax=3,
-        colorscale=[[0, "#1e3a5f"], [0.249, "#1e3a5f"], [0.25, "#f59e0b"], [0.499, "#f59e0b"],
-                    [0.5, "#ef4444"], [0.749, "#ef4444"], [0.75, "#0b0b0b"], [1, "#0b0b0b"]],
+        colorscale=[[0, "#e2e8f0"], [0.249, "#e2e8f0"], [0.25, "#fcd34d"], [0.499, "#fcd34d"],
+                    [0.5, "#fb7185"], [0.749, "#fb7185"], [0.75, "#334155"], [1, "#334155"]],
         showscale=False, customdata=spiv.to_numpy(),
         hovertemplate="%{y}<br>%{x|%d.%m %H:%M} UTC<br>risk %{customdata:.3f}<extra></extra>",
         xgap=0, ygap=2))
@@ -625,14 +625,15 @@ with tabs[0]:
     if len(ev_r):
         fig_h.add_trace(go.Scatter(
             x=ev_r["onset_ts"], y=ev_r["component_id"], mode="markers", name=TX["chan_onset"],
-            marker=dict(symbol="x", size=13, color="#ffffff", line=dict(color="#0b0b0b", width=1.5)),
+            marker=dict(symbol="x", size=13, color="#0f172a", line=dict(color="#ffffff", width=1.5)),
             hovertemplate="%{y} — " + TX["chan_onset"] + "<br>%{x|%d.%m %H:%M} UTC<extra></extra>"))
-    fig_h.update_layout(template="plotly_dark", height=320, margin=dict(l=10, r=10, t=10, b=10),
-                        paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+    fig_h.update_layout(template="plotly_white", height=320, margin=dict(l=10, r=10, t=10, b=10),
+                        paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
                         xaxis=dict(showgrid=False), yaxis=dict(showgrid=False),
                         legend=dict(orientation="h", y=-0.2))
     st.plotly_chart(fig_h, width="stretch")
-    st.caption(TX["heat_leg"] if ops_mode else "")
+    st.markdown(f'<div style="font-size:17px;font-weight:600;color:#0f172a;margin-top:6px">{TX["heat_leg"]}</div>'
+                if ops_mode else "", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
 # 2. Канал
